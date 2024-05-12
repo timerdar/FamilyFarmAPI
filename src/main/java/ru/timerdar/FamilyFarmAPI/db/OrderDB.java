@@ -1,10 +1,7 @@
 package ru.timerdar.FamilyFarmAPI.db;
 
 import org.jetbrains.annotations.NotNull;
-import ru.timerdar.FamilyFarmAPI.dto.Consumer;
-import ru.timerdar.FamilyFarmAPI.dto.ConsumerOrdersList;
-import ru.timerdar.FamilyFarmAPI.dto.Order;
-import ru.timerdar.FamilyFarmAPI.dto.ProductOrdersList;
+import ru.timerdar.FamilyFarmAPI.dto.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -267,6 +264,39 @@ public class OrderDB extends DatabaseController {
                 return "Такого заказа нет";
             }
         } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    public Order changeOrderAmount(OrderChangeAmount order){
+        String query = "update \"order\" set amount = ? where id = (select id from \"order\" where consumer_id = ? and product_id = ? and amount = ? order by start_data asc limit 1)";
+        String consumer_name = "select id from consumer where name = ?";
+        String product_name = "select id from product where name = ?";
+
+        try (Connection connection = getConnection()) {
+
+            PreparedStatement consumer_name_ps = connection.prepareStatement(consumer_name);
+            PreparedStatement product_name_ps = connection.prepareStatement(product_name);
+            PreparedStatement change_order_ps = connection.prepareStatement(query);
+
+            consumer_name_ps.setString(1, order.getOrder().getConsumer_name());
+            product_name_ps.setString(1, order.getOrder().getProduct_name());
+
+            ResultSet consumer_id_rs = consumer_name_ps.executeQuery();
+            ResultSet product_id_rs = product_name_ps.executeQuery();
+
+            consumer_id_rs.next();
+            product_id_rs.next();
+
+            change_order_ps.setInt(3, product_id_rs.getInt(1));
+            change_order_ps.setInt(2, consumer_id_rs.getInt(1));
+            change_order_ps.setDouble(4, order.getOrder().getAmount());
+            change_order_ps.setDouble(1, order.getNew_amount());
+
+            change_order_ps.executeUpdate();
+
+            return new Order(order.getOrder().getConsumer_name(), order.getOrder().getProduct_name(), (float) order.getNew_amount());
+        }catch (SQLException e){
             return null;
         }
     }

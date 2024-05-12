@@ -151,4 +151,19 @@ public class ConsumerDB extends DatabaseController {
             return null;
         }
     }
+
+    public Consumer getConsumerByName(String name){
+        String query = "select * from consumer where name = " + name;
+
+        try(Connection connection = getConnection()){
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            rs.next();
+
+            return new Consumer(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6));
+        }catch(SQLException e){
+            return null;
+        }
+    }
 }

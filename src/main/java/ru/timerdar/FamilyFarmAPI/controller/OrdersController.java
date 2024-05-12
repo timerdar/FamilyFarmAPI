@@ -2,10 +2,7 @@ package ru.timerdar.FamilyFarmAPI.controller;
 
 import org.springframework.web.bind.annotation.*;
 import ru.timerdar.FamilyFarmAPI.db.OrderDB;
-import ru.timerdar.FamilyFarmAPI.dto.Consumer;
-import ru.timerdar.FamilyFarmAPI.dto.ConsumerOrdersList;
-import ru.timerdar.FamilyFarmAPI.dto.Order;
-import ru.timerdar.FamilyFarmAPI.dto.ProductOrdersList;
+import ru.timerdar.FamilyFarmAPI.dto.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,13 +40,15 @@ public class OrdersController {
         return db.moveToDelivery(order);
     }
 
-
     @DeleteMapping("/delete")
     public String delete(@RequestBody Order order){
         return db.deleteOrder(order);
     }
 
-
+    @PatchMapping("/amount")
+    public Order changeAmount(@RequestBody OrderChangeAmount order){
+        return db.changeOrderAmount(order);
+    }
 
     //TODO Сделать добавление комментариев к заказу(?) или к заказчику в доставке (?)
 //    @PatchMapping("/comment")

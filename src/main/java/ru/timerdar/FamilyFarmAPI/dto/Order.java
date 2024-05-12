@@ -11,6 +11,7 @@ public class Order {
     private final java.sql.Date start_data;
     private final float amount;
 
+
     public Order(String consumer_name, String product_name, float amount) {
         this.consumer_name = consumer_name;
         this.product_name = product_name;
