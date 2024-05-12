@@ -91,6 +91,31 @@ public class ConsumerDB extends DatabaseController {
         }
     }
 
+    public ArrayList<Consumer> getAllConsumers(){
+        ArrayList<Consumer> list = new ArrayList<>();
+        String query = "select * from consumer";
+        String subQuery = "select district from district where id = ";
+
+        try(Connection connection = getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(query)){
+
+            while (resultSet.next()){
+                String district_name = "";
+                Statement subStatement = connection.createStatement();
+                ResultSet district = subStatement.executeQuery(subQuery + resultSet.getString(5));
+                if (district.next()){
+                    district_name = district.getString(1);
+                }
+                Consumer consumer = new Consumer(resultSet.getString(2), resultSet.getString(3), resultSet.getString(4), district_name, resultSet.getString(6));
+                list.add(consumer);
+            }
+            return list;
+        }catch (SQLException e){
+            return null;
+        }
+    }
+
     public ArrayList<String> getDistrictsList(){
         ArrayList<String> districtList = new ArrayList<>();
         String query = "select district from district";

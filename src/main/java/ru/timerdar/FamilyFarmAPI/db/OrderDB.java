@@ -6,18 +6,11 @@ import ru.timerdar.FamilyFarmAPI.dto.ConsumerOrdersList;
 import ru.timerdar.FamilyFarmAPI.dto.Order;
 import ru.timerdar.FamilyFarmAPI.dto.ProductOrdersList;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
+public class OrderDB extends DatabaseController {
 
-public class OrderDB extends DatabaseController{
-
-    public String addOrder(@NotNull Order order){
-
-        //TODO Сделать проверку на то, что такого заказа еще нет в базе
+    public String addOrder(@NotNull Order order) {
 
         String existsConsumer = "select count(name) from consumer where name = '" + order.getConsumer_name() + "';";
         String existsProduct = "select count(name) from product where name = '" + order.getProduct_name() + "';";
@@ -31,18 +24,18 @@ public class OrderDB extends DatabaseController{
              Statement getCons = connection.createStatement();
              Statement getProd = connection.createStatement();
              PreparedStatement preparedStatement = connection.prepareStatement(query)
-        ){
+        ) {
 
             ResultSet consumers = existCons.executeQuery(existsConsumer);
-            if (consumers.next()){
-                if (consumers.getInt(1) == 0){
+            if (consumers.next()) {
+                if (consumers.getInt(1) == 0) {
                     throw new Exception("Нет заказчика в базе. Сначала необходимо добавить заказчика.\n/add_c");
                 }
             }
 
             ResultSet products = existProd.executeQuery(existsProduct);
-            if (products.next()){
-                if (products.getInt(1) == 0){
+            if (products.next()) {
+                if (products.getInt(1) == 0) {
                     throw new Exception("Нет продукта в базе. Сначала необходимо добавить продукт.\n/add_p");
                 }
             }
@@ -63,12 +56,12 @@ public class OrderDB extends DatabaseController{
             preparedStatement.executeUpdate();
 
             return "Добавлен заказ:\n" + order;
-        }catch (Exception e){
+        } catch (Exception e) {
             return "Проверьте наличие данного продукта и имя заказчика";
         }
     }
 
-    public ArrayList<ConsumerOrdersList> getOrdersList(@NotNull String view){
+    public ArrayList<ConsumerOrdersList> getOrdersList(@NotNull String view) {
         String table, label;
         ArrayList<ConsumerOrdersList> answer = new ArrayList<>();
         label = switch (view) {
@@ -93,9 +86,9 @@ public class OrderDB extends DatabaseController{
 
         //Получаем список consumer_id у кого есть заказ
         try (Connection connection = getConnection();
-             Statement consumers = connection.createStatement()){
+             Statement consumers = connection.createStatement()) {
             ResultSet resultSet = consumers.executeQuery(allConsumers);
-            while (resultSet.next()){
+            while (resultSet.next()) {
 
                 ArrayList<Order> list = new ArrayList<>();
 
@@ -116,7 +109,7 @@ public class OrderDB extends DatabaseController{
                 PreparedStatement orderSt = connection.prepareStatement(query);
                 orderSt.setInt(1, consumer_id);
                 ResultSet ordersRS = orderSt.executeQuery();
-                while (ordersRS.next()){
+                while (ordersRS.next()) {
                     //Получить название каждого продукта из заказов
                     PreparedStatement getProdSt = connection.prepareStatement(getProd);
                     getProdSt.setInt(1, ordersRS.getInt("product_id"));
@@ -130,13 +123,13 @@ public class OrderDB extends DatabaseController{
                 answer.add(new ConsumerOrdersList(consumer, list));
             }
             return answer;
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
 
 
-    public ArrayList<ProductOrdersList> getOrdersListByProducts(){
+    public ArrayList<ProductOrdersList> getOrdersListByProducts() {
         ArrayList<ProductOrdersList> list = new ArrayList<>();
 
         String products = "select distinct product_id from undone_orders";
@@ -145,12 +138,12 @@ public class OrderDB extends DatabaseController{
         String consumerName = "select name from consumer where id = ?";
         String productName = "select name from product where id = ?";
 
-        try(Connection connection = getConnection();
-            Statement products_statement = connection.createStatement()){
+        try (Connection connection = getConnection();
+             Statement products_statement = connection.createStatement()) {
 
             ResultSet products_ids = products_statement.executeQuery(products);
 
-            while (products_ids.next()){
+            while (products_ids.next()) {
                 int product_id = products_ids.getInt(1);
 
                 ArrayList<Order> orders = new ArrayList<>();
@@ -173,7 +166,7 @@ public class OrderDB extends DatabaseController{
                 PreparedStatement order_list_statement = connection.prepareStatement(ordersList);
                 order_list_statement.setInt(1, product_id);
                 ResultSet orders_rs = order_list_statement.executeQuery();
-                while (orders_rs.next()){
+                while (orders_rs.next()) {
                     int order_id = orders_rs.getInt(1);
                     int consumer_id = orders_rs.getInt(2);
                     double amount = orders_rs.getInt(3);
@@ -195,20 +188,24 @@ public class OrderDB extends DatabaseController{
             }
             return list;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public String moveToDelivery(Order order){
-        String query = "update \"order\" set status_id = 2 where product_id = ? and consumer_id = ?";
+
+    //переводит в доставку заказ. Если такой заказ повторяется - переводит тот, что раньше был добавлен в бд
+    public String moveToDelivery(Order order) {
+        String query = "update \"order\" set status_id = 2 where id = ?";
         String consumer_name = "select id from consumer where name = ?";
         String product_name = "select id from product where name = ?";
-        try (Connection connection = getConnection()){
+        String order_id = "select id from \"order\" where product_id = ? and consumer_id = ? order by start_data asc limit 1";
+        try (Connection connection = getConnection()) {
 
             PreparedStatement consumer_ps = connection.prepareStatement(consumer_name);
             PreparedStatement product_ps = connection.prepareStatement(product_name);
+            PreparedStatement order_ps = connection.prepareStatement(order_id);
 
             consumer_ps.setString(1, order.getConsumer_name());
             product_ps.setString(1, order.getProduct_name());
@@ -221,17 +218,93 @@ public class OrderDB extends DatabaseController{
             int first = product_id.getInt(1);
             int second = consumer_id.getInt(1);
 
-            System.out.println(first + " " + second);
+            order_ps.setInt(1, first);
+            order_ps.setInt(2, second);
+
+            ResultSet order_id_rs = order_ps.executeQuery();
+            order_id_rs.next();
+
 
             PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, first);
-            preparedStatement.setInt(2, second);
-
+            preparedStatement.setInt(1, order_id_rs.getInt(1));
             preparedStatement.executeUpdate();
             return "Заказ переведен в доставку:\n" + order;
-        }catch (Exception e){
-            e.printStackTrace();
+        } catch (Exception e) {
             return null;
         }
     }
+
+    //удаляет заказ. если таких заказов несколько - удаляет самый старый
+    public String deleteOrder(Order order) {
+        String query = "delete from \"order\" where id = (select id from \"order\" where product_id = ? and consumer_id = ? and start_data = ? and status_id < 3 order by start_data asc limit 1)";
+        String consumer_name = "select id from consumer where name = ?";
+        String product_name = "select id from product where name = ?";
+
+        try (Connection connection = getConnection()) {
+
+            PreparedStatement consumer_name_ps = connection.prepareStatement(consumer_name);
+            PreparedStatement product_name_ps = connection.prepareStatement(product_name);
+            PreparedStatement delete_order_ps = connection.prepareStatement(query);
+
+            consumer_name_ps.setString(1, order.getConsumer_name());
+            product_name_ps.setString(1, order.getProduct_name());
+
+            ResultSet consumer_id_rs = consumer_name_ps.executeQuery();
+            ResultSet product_id_rs = product_name_ps.executeQuery();
+
+            consumer_id_rs.next();
+            product_id_rs.next();
+
+            delete_order_ps.setInt(1, product_id_rs.getInt(1));
+            delete_order_ps.setInt(2, consumer_id_rs.getInt(1));
+            delete_order_ps.setDate(3, order.getStart_data());
+
+            int r = delete_order_ps.executeUpdate();
+
+            if (r > 0) {
+                return "Заказ удален:\n" + order;
+            } else {
+                return "Такого заказа нет";
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    //TODO Добавить реализацию запроса addComment
+//    public String addComment(Order order){
+//        String query = "update \"order\" set comment = ? where id = (select id from \"order\" where product_id = ? and consumer_id = ? and amount = ?)";
+//        String consumer_id = "select id from consumer where name = ?";
+//        String product_id = "select id from product where name = ?";
+//
+//        try(Connection connection = getConnection();
+//            PreparedStatement statement = connection.prepareStatement(query)) {
+//
+//            PreparedStatement consumer_id_ps = connection.prepareStatement(consumer_id);
+//            PreparedStatement product_id_ps = connection.prepareStatement(product_id);
+//
+//            consumer_id_ps.setString(1, order.getConsumer_name());
+//            product_id_ps.setString(1, order.getProduct_name());
+//
+//            ResultSet consumer_id_rs = consumer_id_ps.executeQuery();
+//            ResultSet product_id_rs = product_id_ps.executeQuery();
+//
+//            consumer_id_rs.next();
+//            product_id_rs.next();
+//
+//            statement.setString(1, order.getComment());
+//            statement.setInt(2, product_id_rs.getInt(1));
+//            statement.setInt(3, consumer_id_rs.getInt(1));
+//            statement.setDouble(4, order.getAmount());
+//
+//            statement.executeUpdate();
+//
+//            return "К заказу\n" + order + "\nдобавлен комментарий:\n" + order.getComment();
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
+
+
 }

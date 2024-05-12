@@ -43,4 +43,17 @@ public class OrdersController {
         return db.moveToDelivery(order);
     }
 
+
+    @DeleteMapping("/delete")
+    public String delete(@RequestBody Order order){
+        return db.deleteOrder(order);
+    }
+
+
+
+    //TODO Сделать добавление комментариев к заказу(?) или к заказчику в доставке (?)
+//    @PatchMapping("/comment")
+//    public String addComment(@RequestBody Order order){
+//        return db.addComment(order);
+//    }
 }

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 @RequestMapping("/api/consumers")
 public class ConsumerController {
 
-    private ConsumerDB db = new ConsumerDB();
+    private final ConsumerDB db = new ConsumerDB();
 
     @PostMapping("/add")
     public String addConsumer(@RequestBody Consumer consumer){
@@ -30,5 +30,10 @@ public class ConsumerController {
     @DeleteMapping("/delete")
     public String deleteConsumer(@RequestBody String name){
         return db.delete(name);
+    }
+
+    @GetMapping("/")
+    public ArrayList<Consumer> getAllConsumers(){
+        return db.getAllConsumers();
     }
 }

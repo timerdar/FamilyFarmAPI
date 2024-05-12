@@ -3,12 +3,13 @@ package ru.timerdar.FamilyFarmAPI.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter@Getter
+@Setter
+@Getter
 public class Product {
 
     private final String name;
     private final Double price;
-    private final Boolean eval;
+    private final boolean eval;
 
     public Product(String name, Double price, boolean eval){
         this.name = name;
@@ -21,4 +22,7 @@ public class Product {
         return name + " " + price;
     }
 
+    public boolean getEval() {
+        return this.eval;
+    }
 }
