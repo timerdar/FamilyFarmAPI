@@ -82,7 +82,7 @@ public class ConsumerDB extends DatabaseController {
 
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()){
-                Consumer consumer = new Consumer(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), district);
+                Consumer consumer = new Consumer(rs.getString(1), rs.getString(2), rs.getString(3), district, rs.getString(4));
                 consumers.add(consumer);
             }
             return consumers;
