@@ -3,6 +3,7 @@ package ru.timerdar.FamilyFarmAPI.controller;
 import org.springframework.web.bind.annotation.*;
 import ru.timerdar.FamilyFarmAPI.db.ConsumerDB;
 import ru.timerdar.FamilyFarmAPI.dto.Consumer;
+import ru.timerdar.FamilyFarmAPI.dto.TextResponse;
 
 import java.util.ArrayList;
 
@@ -13,8 +14,8 @@ public class ConsumerController {
     private final ConsumerDB db = new ConsumerDB();
 
     @PostMapping("/add")
-    public String addConsumer(@RequestBody Consumer consumer){
-        return db.addConsumer(consumer);
+    public TextResponse addConsumer(@RequestBody Consumer consumer){
+        return new TextResponse(db.addConsumer(consumer));
     }
 
     @GetMapping("/byDistrict/{district}")
@@ -27,13 +28,18 @@ public class ConsumerController {
         return db.getDistrictsList();
     }
 
-    @DeleteMapping("/delete")
-    public String deleteConsumer(@RequestBody String name){
-        return db.delete(name);
+    @DeleteMapping("/delete/{name}")
+    public TextResponse deleteConsumer(@PathVariable String name){
+        return new TextResponse(db.delete(name));
     }
 
     @GetMapping("/")
     public ArrayList<Consumer> getAllConsumers(){
         return db.getAllConsumers();
+    }
+
+    @GetMapping("/{name}")
+    public Consumer getConsumerByName(@PathVariable String name){
+        return db.getConsumerByName(name);
     }
 }

@@ -42,15 +42,15 @@ public class ConsumerDB extends DatabaseController {
                 district_id = resultSet.getInt(1);
             }
 
-            preparedStatement.setString(1, consumer.getName());
-            preparedStatement.setString(2, consumer.getStreet());
-            preparedStatement.setString(3, consumer.getRoom());
+            preparedStatement.setString(1, consumer.getName().trim());
+            preparedStatement.setString(2, consumer.getStreet().trim());
+            preparedStatement.setString(3, consumer.getRoom().trim());
             preparedStatement.setInt(4, district_id);
-            preparedStatement.setString(5, consumer.getPhone());
+            preparedStatement.setString(5, consumer.getPhone().trim());
 
             preparedStatement.executeUpdate();
 
-            return "Добавлен заказчик:\n" + consumer;
+            return "Добавлен заказчик: " + consumer;
         }catch (SQLException e){
             return e.getMessage();
         }
@@ -134,7 +134,7 @@ public class ConsumerDB extends DatabaseController {
     }
 
     public String delete(String name){
-        String query = "delete from consumer where name = ?";
+        String query = "delete from consumer where name = '?'";
 
         try(Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)){
@@ -153,7 +153,7 @@ public class ConsumerDB extends DatabaseController {
     }
 
     public Consumer getConsumerByName(String name){
-        String query = "select * from consumer where name = " + name;
+        String query = "select * from consumer where name = '" + name + "'";
 
         try(Connection connection = getConnection()){
             Statement statement = connection.createStatement();

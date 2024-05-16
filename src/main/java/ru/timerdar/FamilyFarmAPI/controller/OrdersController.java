@@ -16,8 +16,8 @@ public class OrdersController {
     private OrderDB db = new OrderDB();
 
     @PostMapping("/add")
-    public String addOrder(@RequestBody Order order){
-        return db.addOrder(order);
+    public TextResponse addOrder(@RequestBody Order order){
+        return new TextResponse(db.addOrder(order));
     }
 
     @GetMapping("/undone")
@@ -36,13 +36,13 @@ public class OrdersController {
     }
 
     @PostMapping("/toDelivery")
-    public String toDelivery(@RequestBody Order order){
-        return db.moveToDelivery(order);
+    public TextResponse toDelivery(@RequestBody Order order){
+        return new TextResponse(db.moveToDelivery(order));
     }
 
     @DeleteMapping("/delete")
-    public String delete(@RequestBody Order order){
-        return db.deleteOrder(order);
+    public TextResponse delete(@RequestBody Order order){
+        return new TextResponse(db.deleteOrder(order));
     }
 
     @PatchMapping("/amount")

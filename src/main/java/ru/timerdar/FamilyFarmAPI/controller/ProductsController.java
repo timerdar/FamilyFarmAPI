@@ -4,6 +4,7 @@ package ru.timerdar.FamilyFarmAPI.controller;
 import org.springframework.web.bind.annotation.*;
 import ru.timerdar.FamilyFarmAPI.db.ProductDB;
 import ru.timerdar.FamilyFarmAPI.dto.Product;
+import ru.timerdar.FamilyFarmAPI.dto.TextResponse;
 
 import java.util.ArrayList;
 
@@ -14,8 +15,8 @@ public class ProductsController {
     private final ProductDB db = new ProductDB();
 
     @PostMapping("/add")
-    public String addProduct(@RequestBody Product product){
-        return db.addProduct(product);
+    public TextResponse addProduct(@RequestBody Product product){
+        return new TextResponse(db.addProduct(product));
     }
 
     @GetMapping("/")
@@ -29,7 +30,7 @@ public class ProductsController {
     }
 
     @DeleteMapping("/delete")
-    public String deleteProduct(@RequestBody String name){
-        return db.delete(name);
+    public TextResponse deleteProduct(@RequestBody String name){
+        return new TextResponse(db.delete(name));
     }
 }

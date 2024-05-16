@@ -52,7 +52,7 @@ public class OrderDB extends DatabaseController {
 
             preparedStatement.executeUpdate();
 
-            return "Добавлен заказ:\n" + order;
+            return "Добавлен заказ: " + order;
         } catch (Exception e) {
             return "Проверьте наличие данного продукта и имя заказчика";
         }

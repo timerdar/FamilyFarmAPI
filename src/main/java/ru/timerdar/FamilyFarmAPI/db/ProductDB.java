@@ -13,7 +13,7 @@ public class ProductDB extends DatabaseController{
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)){
-            preparedStatement.setString(1, product.getName());
+            preparedStatement.setString(1, product.getName().trim());
             preparedStatement.setDouble(2, product.getPrice());
             preparedStatement.setBoolean(3, product.getEval());
 
