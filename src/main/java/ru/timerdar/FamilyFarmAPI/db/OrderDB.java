@@ -48,7 +48,7 @@ public class OrderDB extends DatabaseController {
             preparedStatement.setInt(1, product_id);
             preparedStatement.setInt(2, consumer_id);
             preparedStatement.setDate(3, order.getStart_data());
-            preparedStatement.setFloat(4, order.getAmount());
+            preparedStatement.setDouble(4, order.getAmount());
 
             preparedStatement.executeUpdate();
 
@@ -113,7 +113,7 @@ public class OrderDB extends DatabaseController {
                     ResultSet productRS = getProdSt.executeQuery();
                     productRS.next();
 
-                    Order order = new Order(consum.getString(2), productRS.getString(1), ordersRS.getFloat("amount"));
+                    Order order = new Order(consum.getString(2), productRS.getString(1), ordersRS.getDouble("amount"));
 
                     list.add(order);
                 }
@@ -166,7 +166,7 @@ public class OrderDB extends DatabaseController {
                 while (orders_rs.next()) {
                     int order_id = orders_rs.getInt(1);
                     int consumer_id = orders_rs.getInt(2);
-                    double amount = orders_rs.getInt(3);
+                    double amount = orders_rs.getDouble(3);
 
                     //получение имени заказчика и кол-ва данной позиции
                     PreparedStatement consumer_name_statement = connection.prepareStatement(consumerName);
@@ -175,18 +175,17 @@ public class OrderDB extends DatabaseController {
                     consumer_name_rs.next();
                     String consumer_name = consumer_name_rs.getString(1);
 
-                    Order order = new Order(consumer_name, product_name, (float) amount);
-                    System.out.println(order);
+                    Order order = new Order(consumer_name, product_name, amount);
+                    //System.out.println(order);
                     orders.add(order);
                 }
                 ProductOrdersList productOrdersList = new ProductOrdersList(product_name, sum_number, orders);
-                System.out.println(productOrdersList);
+                //System.out.println(productOrdersList);
                 list.add(productOrdersList);
             }
             return list;
 
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -225,7 +224,46 @@ public class OrderDB extends DatabaseController {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, order_id_rs.getInt(1));
             preparedStatement.executeUpdate();
-            return "Заказ переведен в доставку:\n" + order;
+            return "Заказ переведен в доставку: " + order;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    //переводит из доставки заказ. Если такой заказ повторяется - переводит тот, что раньше был добавлен в бд
+    public String moveToUndone(Order order) {
+        String query = "update \"order\" set status_id = 1 where id = ?";
+        String consumer_name = "select id from consumer where name = ?";
+        String product_name = "select id from product where name = ?";
+        String order_id = "select id from \"order\" where product_id = ? and consumer_id = ? order by start_data asc limit 1";
+        try (Connection connection = getConnection()) {
+
+            PreparedStatement consumer_ps = connection.prepareStatement(consumer_name);
+            PreparedStatement product_ps = connection.prepareStatement(product_name);
+            PreparedStatement order_ps = connection.prepareStatement(order_id);
+
+            consumer_ps.setString(1, order.getConsumer_name());
+            product_ps.setString(1, order.getProduct_name());
+
+            ResultSet consumer_id = consumer_ps.executeQuery();
+            ResultSet product_id = product_ps.executeQuery();
+            consumer_id.next();
+            product_id.next();
+
+            int first = product_id.getInt(1);
+            int second = consumer_id.getInt(1);
+
+            order_ps.setInt(1, first);
+            order_ps.setInt(2, second);
+
+            ResultSet order_id_rs = order_ps.executeQuery();
+            order_id_rs.next();
+
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, order_id_rs.getInt(1));
+            preparedStatement.executeUpdate();
+            return "Заказ выведени из доставки: " + order;
         } catch (Exception e) {
             return null;
         }
@@ -295,7 +333,7 @@ public class OrderDB extends DatabaseController {
 
             change_order_ps.executeUpdate();
 
-            return new Order(order.getOrder().getConsumer_name(), order.getOrder().getProduct_name(), (float) order.getNew_amount());
+            return new Order(order.getOrder().getConsumer_name(), order.getOrder().getProduct_name(), order.getNew_amount());
         }catch (SQLException e){
             return null;
         }

@@ -12,6 +12,6 @@ public class OrderChangeAmount {
 
     public OrderChangeAmount(Order order, double newAmount) {
         this.order = order;
-        new_amount = newAmount;
+        this.new_amount = newAmount;
     }
 }

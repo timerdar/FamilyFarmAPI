@@ -40,6 +40,11 @@ public class OrdersController {
         return new TextResponse(db.moveToDelivery(order));
     }
 
+    @PostMapping("/toUndone")
+    public TextResponse toUndone(@RequestBody Order order){
+        return new TextResponse(db.moveToUndone(order));
+    }
+
     @DeleteMapping("/delete")
     public TextResponse delete(@RequestBody Order order){
         return new TextResponse(db.deleteOrder(order));

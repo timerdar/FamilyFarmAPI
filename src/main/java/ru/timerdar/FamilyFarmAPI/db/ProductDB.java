@@ -9,11 +9,13 @@ public class ProductDB extends DatabaseController{
 
     public String addProduct(Product product){
 
+        //System.out.println(product.toString());
+
         String query = "insert into product(name, price, eval) values(?, ?, ?);";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)){
-            preparedStatement.setString(1, product.getName().trim());
+            preparedStatement.setString(1, product.getName());
             preparedStatement.setDouble(2, product.getPrice());
             preparedStatement.setBoolean(3, product.getEval());
 

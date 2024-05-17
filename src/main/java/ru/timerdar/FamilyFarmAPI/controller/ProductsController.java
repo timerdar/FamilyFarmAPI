@@ -29,8 +29,8 @@ public class ProductsController {
         return db.changePrice(product);
     }
 
-    @DeleteMapping("/delete")
-    public TextResponse deleteProduct(@RequestBody String name){
-        return new TextResponse(db.delete(name));
+    @DeleteMapping("/delete/{product}")
+    public TextResponse deleteProduct(@PathVariable String product){
+        return new TextResponse(db.delete(product));
     }
 }
