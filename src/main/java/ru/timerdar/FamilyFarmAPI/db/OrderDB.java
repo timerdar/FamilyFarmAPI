@@ -196,7 +196,7 @@ public class OrderDB extends DatabaseController {
         String query = "update \"order\" set status_id = 2 where id = ?";
         String consumer_name = "select id from consumer where name = ?";
         String product_name = "select id from product where name = ?";
-        String order_id = "select id from \"order\" where product_id = ? and consumer_id = ? order by start_data asc limit 1";
+        String order_id = "select id from undone_orders where product_id = ? and consumer_id = ? and amount = ? order by start_data asc limit 1";
         try (Connection connection = getConnection()) {
 
             PreparedStatement consumer_ps = connection.prepareStatement(consumer_name);
@@ -216,10 +216,10 @@ public class OrderDB extends DatabaseController {
 
             order_ps.setInt(1, first);
             order_ps.setInt(2, second);
+            order_ps.setDouble(3, order.getAmount());
 
             ResultSet order_id_rs = order_ps.executeQuery();
             order_id_rs.next();
-
 
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, order_id_rs.getInt(1));
