@@ -5,8 +5,6 @@ import ru.timerdar.FamilyFarmAPI.db.OrderDB;
 import ru.timerdar.FamilyFarmAPI.dto.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 
 @RestController
@@ -54,6 +52,12 @@ public class OrdersController {
     public Order changeAmount(@RequestBody OrderChangeAmount order){
         return db.changeOrderAmount(order);
     }
+
+    @GetMapping("/clearDelivery")
+    public TextResponse clearDelivery(){
+        return db.clearDelivery();
+    }
+
 
     //TODO Сделать добавление комментариев к заказу(?) или к заказчику в доставке (?)
 //    @PatchMapping("/comment")

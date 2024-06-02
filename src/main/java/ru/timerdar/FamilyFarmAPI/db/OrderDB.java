@@ -339,6 +339,18 @@ public class OrderDB extends DatabaseController {
         }
     }
 
+    public TextResponse clearDelivery(){
+        String query = "call clear_delivery();";
+
+        try(Connection connection = getConnection();
+            Statement statement = connection.createStatement()){
+            statement.executeQuery(query);
+            return new TextResponse("Доставка очищена");
+        }catch (Exception e){
+            return new TextResponse("Ошибка:\n" + e.getMessage());
+        }
+    }
+
     //TODO Добавить реализацию запроса addComment
 //    public String addComment(Order order){
 //        String query = "update \"order\" set comment = ? where id = (select id from \"order\" where product_id = ? and consumer_id = ? and amount = ?)";
