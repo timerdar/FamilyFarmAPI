@@ -345,11 +345,13 @@ public class OrderDB extends DatabaseController {
         try(Connection connection = getConnection();
             Statement statement = connection.createStatement()){
             statement.executeQuery(query);
+            return new TextResponse("Clear");
+        }catch (Exception e) {
+            System.out.println(e.getClass() + " " + e.getMessage() + " в процессе чистки доставки");
             return new TextResponse("Доставка очищена");
-        }catch (Exception e){
-            return new TextResponse("Ошибка:\n" + e.getMessage());
         }
     }
+
 
     //TODO Добавить реализацию запроса addComment
 //    public String addComment(Order order){
