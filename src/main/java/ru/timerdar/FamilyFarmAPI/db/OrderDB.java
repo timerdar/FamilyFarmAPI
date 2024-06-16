@@ -5,6 +5,8 @@ import ru.timerdar.FamilyFarmAPI.dto.*;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
+
 public class OrderDB extends DatabaseController {
 
     public String addOrder(@NotNull Order order) {
@@ -129,7 +131,13 @@ public class OrderDB extends DatabaseController {
     public ArrayList<ProductOrdersList> getOrdersListByProducts() {
         ArrayList<ProductOrdersList> list = new ArrayList<>();
 
-        String products = "select distinct product_id from undone_orders";
+        String products = "SELECT DISTINCT sorted.product_id\n" +
+                "FROM (\n" +
+                "    SELECT u.product_id\n" +
+                "    FROM undone_orders u\n" +
+                "    JOIN product p ON p.id = u.product_id\n" +
+                "    ORDER BY p.\"name\"\n" +
+                ") AS sorted;";
         String sum = "select sum(amount) from undone_orders where product_id = ?";
         String ordersList = "select id, consumer_id, amount from undone_orders where product_id = ?";
         String consumerName = "select name from consumer where id = ?";
