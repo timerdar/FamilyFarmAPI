@@ -78,7 +78,13 @@ public class OrderDB extends DatabaseController {
             }
         };
         String query = "select * from " + table + " where consumer_id = ?;";
-        String allConsumers = "select distinct consumer_id from " + table + ";";
+        String allConsumers = "select sorted.consumer_id\n" +
+                "from (\n" +
+                "\tselect distinct c.\"name\", uo.consumer_id\n" +
+                "\tfrom " + table + " uo \n" +
+                "\tjoin consumer c on uo.consumer_id = c.id \n" +
+                "\torder by c.\"name\"\n" +
+                ") as sorted ";
         String getCons = "select * from consumer where id = ?;";
         String getProd = "select name from product where id = ?;";
         String getDistrict = "select district from district where id = ?";
