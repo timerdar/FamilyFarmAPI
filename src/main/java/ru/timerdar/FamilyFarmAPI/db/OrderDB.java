@@ -263,7 +263,7 @@ public class OrderDB extends DatabaseController {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, order_id_rs.getInt(1));
             preparedStatement.executeUpdate();
-            return "Заказ выведени из доставки: " + order;
+            return "Заказ выведен из доставки: " + order;
         } catch (Exception e) {
             return null;
         }

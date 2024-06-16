@@ -66,7 +66,8 @@ public class ConsumerDB extends DatabaseController {
         String districtQuery = "select id from district where district = '" + district + "'";
         String query = "select name, street, room, phone " +
                 "from consumer " +
-                "where district_id = ?";
+                "where district_id = ? " +
+                "order by name";
 
         try (Connection connection = getConnection();
              Statement statement = connection.createStatement();
@@ -93,7 +94,7 @@ public class ConsumerDB extends DatabaseController {
 
     public ArrayList<Consumer> getAllConsumers(){
         ArrayList<Consumer> list = new ArrayList<>();
-        String query = "select * from consumer";
+        String query = "select * from consumer order by name";
         String subQuery = "select district from district where id = ";
 
         try(Connection connection = getConnection();
@@ -118,7 +119,7 @@ public class ConsumerDB extends DatabaseController {
 
     public ArrayList<String> getDistrictsList(){
         ArrayList<String> districtList = new ArrayList<>();
-        String query = "select district from district";
+        String query = "select district from district order by district";
 
         try(Connection connection = getConnection();
             Statement statement = connection.createStatement();

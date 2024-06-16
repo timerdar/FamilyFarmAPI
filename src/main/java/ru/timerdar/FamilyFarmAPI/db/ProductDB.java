@@ -29,7 +29,7 @@ public class ProductDB extends DatabaseController{
 
     public ArrayList<Product> productList(){
         ArrayList<Product> list = new ArrayList<>();
-        String query = "select * from product";
+        String query = "select * from product order by name";
 
         try (Connection connection = getConnection();
              Statement statement = connection.createStatement()){
