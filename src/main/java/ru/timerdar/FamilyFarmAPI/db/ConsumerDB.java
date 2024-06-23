@@ -169,7 +169,6 @@ public class ConsumerDB extends DatabaseController {
     }
 
     public void setMarker(String name, int marker){
-        System.out.println(name + marker);
         String query = "update consumer set marker = " + marker + " where name = '" + name + "'";
         try(Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)){
