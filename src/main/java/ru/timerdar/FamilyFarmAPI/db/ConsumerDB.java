@@ -83,7 +83,7 @@ public class ConsumerDB extends DatabaseController {
 
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()){
-                Consumer consumer = new Consumer(rs.getString(1), rs.getString(2), rs.getString(3), district, rs.getString(4));
+                Consumer consumer = new Consumer(rs.getString(1), rs.getString(2), rs.getString(3), district, rs.getString(4), 0);
                 consumers.add(consumer);
             }
             return consumers;
@@ -108,7 +108,7 @@ public class ConsumerDB extends DatabaseController {
                 if (district.next()){
                     district_name = district.getString(1);
                 }
-                Consumer consumer = new Consumer(resultSet.getString(2), resultSet.getString(3), resultSet.getString(4), district_name, resultSet.getString(6));
+                Consumer consumer = new Consumer(resultSet.getString(2), resultSet.getString(3), resultSet.getString(4), district_name, resultSet.getString(6), resultSet.getInt(7));
                 list.add(consumer);
             }
             return list;
@@ -162,9 +162,21 @@ public class ConsumerDB extends DatabaseController {
 
             rs.next();
 
-            return new Consumer(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6));
+            return new Consumer(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getInt(7));
         }catch(SQLException e){
             return null;
+        }
+    }
+
+    public void setMarker(String name, int marker){
+        System.out.println(name + marker);
+        String query = "update consumer set marker = " + marker + " where name = '" + name + "'";
+        try(Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query)){
+
+            preparedStatement.executeUpdate();
+        }catch (SQLException e){
+            e.printStackTrace();
         }
     }
 }

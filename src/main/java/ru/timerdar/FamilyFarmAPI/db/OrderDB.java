@@ -109,7 +109,7 @@ public class OrderDB extends DatabaseController {
                 ResultSet district = districtName.executeQuery();
                 district.next();
 
-                Consumer consumer = new Consumer(consum.getString(2), consum.getString(3), consum.getString(4), district.getString(1), consum.getString(6));
+                Consumer consumer = new Consumer(consum.getString(2), consum.getString(3), consum.getString(4), district.getString(1), consum.getString(6), consum.getInt(7));
 
                 PreparedStatement orderSt = connection.prepareStatement(query);
                 orderSt.setInt(1, consumer_id);

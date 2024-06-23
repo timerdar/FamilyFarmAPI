@@ -1,8 +1,10 @@
 package ru.timerdar.FamilyFarmAPI.controller;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.*;
 import ru.timerdar.FamilyFarmAPI.db.ConsumerDB;
 import ru.timerdar.FamilyFarmAPI.dto.Consumer;
+import ru.timerdar.FamilyFarmAPI.dto.Marker;
 import ru.timerdar.FamilyFarmAPI.dto.TextResponse;
 
 import java.util.ArrayList;
@@ -31,6 +33,11 @@ public class ConsumerController {
     @DeleteMapping("/delete/{name}")
     public TextResponse deleteConsumer(@PathVariable String name){
         return new TextResponse(db.delete(name));
+    }
+
+    @PatchMapping("/{name}/mark")
+    public void setMarker(@PathVariable String name, @RequestBody Marker marker){
+        db.setMarker(name, marker.getMarker());
     }
 
     @GetMapping("/")
